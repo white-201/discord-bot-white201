@@ -1,4 +1,5 @@
 import discord
+import os
 
 TOKEN = access_token
 client = discord.Client()
