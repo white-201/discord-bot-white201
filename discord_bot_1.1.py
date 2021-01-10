@@ -1,6 +1,6 @@
 import discord
 
-TOKEN = 'Nzk3NzUzODAwOTE1OTQzNDU0.X_rEHw.wH2f6PMewC80agRbJZ8MAOIC1AY'
+TOKEN = access_token
 client = discord.Client()
 @client.event
 
