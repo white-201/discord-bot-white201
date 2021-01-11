@@ -4,9 +4,10 @@ import random
 import openpyxl
 from openpyxl import load_workbook
 import time
+import sys
 
-TOKEN = os.environ['BOT_TOKEN']
-
+#TOKEN = os.environ['BOT_TOKEN']
+TOKEN = 'Nzk3NzUzODAwOTE1OTQzNDU0.X_rEHw.CbkOxRxcvNJY6-xHVZy9h4frlv4'
 client = discord.Client()
 
 @client.event
@@ -21,59 +22,89 @@ async def on_message(message):  #봇이 쓰는 명령에는 반응 안되게 하
         sheet = file.active
 
         success_failure = random.randrange(0, 100) #강화가 실패할 확률을 정하는 부분    
-        success_failure_ox = True
+        success_failure_ox = True  #True가 안터진거, False가 터진거
 
         boom = random.randrange(0, 100) #강화가 터질 확률을 정하는 부분
-        boom_ox = True
+        boom_ox = False #True가 터진거, False가 안터진거
 
-        old_level = 0;
+        past_record_ox = True
+
+        old_level_th = 0 #엑셀 파일에서 이 유저가 몇번째에 있었는지 저장하는 변수
+        old_level = 0 #엑셀 파일에서 이 유저의 원래 레벨을 저장하는 변수
+
+        decrease_increase = "" #값이 증가했는지 감소했는지 나타내는 변수
 
         i = 1
         while True:    #엑셀 파일에 A를 위부터 내려오면서 입력자와 같은지 확인하고, 다르면 아래로 내리고 찾아서 값을 바꿈
             if sheet["A"+str(i)].value == str(message.author.id):
+                past_record_ox = True
+                old_level_th = i
                 old_level = sheet["B"+str(i)].value
-                level = sheet["B"+str(i)].value
-                if boom < (level/100): #터졌는지 안터졌는지 확인
-                    sheet["B"+str(i)].value = 0
-                    boom_ox = False
-                else:
-                    boom_ox = True
-                if success_failure > (level/10) and boom_ox == True: #강화를 성공했는지 실패했는지 확인
-                    sheet["B"+str(i)].value += exp
-                    success_failure_ox = True
-                else:
-                    success_failure_ox = False
-                file.save("레벨.xlsx")
                 break
             if sheet["A"+str(i)].value == None:    #내려오다가 값이 비어있으면 거기에 값을 입력함
-                old_level = sheet["B"+str(i)].value
+                past_record_ox = False
                 sheet["A"+str(i)].value = str(message.author.id)
                 sheet["B"+str(i)].value = exp
-                boom_ox = True
-                Success_failure_ox = True
-                file.save("레벨.xlsx")
                 break
-            now = time.localtime() #현재 시간 저장
-            sheet["C"+str(i)].value = "%04d/%02d/%02d %02d:%02d:%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec) #현재 시간을 엑셀 파일의 C에 입력함
             i+=1
+        if past_record_ox == True:
+            if boom > (old_level/100): #터지지 않았을 경우
+                boom_ox = False
+                if success_failure > (old_level/10): #강화에 성공했을 경우
+                    success_failure_ox = True
+                    sheet["B"+str(old_level_th)].value += exp
+                    if exp > 0:   #강화를 통해 증가했는지 감소했는지 정하는 부분
+                        decrease_increase = "증가량 : +"
+                    elif exp <= 0:
+                        decrease_increase = "감소량 : "
+                    msg = "<@{}>님 강화 진행! 강화 레벨은 {} 입니다.(기존 레벨 : {}, {}{})".format(message.author.id,sheet["B"+str(old_level_th)].value, old_level,decrease_increase,exp)
+                    await message.channel.send(msg)
+                else: #강화를 실패했을 경우
+                    success_failure_ox = False
+                    msg = "<@{}>님 강화 실패! 강화 레벨은 {} 입니다.(기존 레벨 : {}, 변화량 : 0)".format(message.author.id, old_level, old_level)
+                    await message.channel.send(msg)
+            else: #터졌을 경우
+                boom_ox = True
+                sheet["B"+str(old_level_th)].value = 0
+                msg = "<@{}>님 강화 실패! 아이쿠 터졌습니다. 강화 레벨은 0LV 입니다.".format(str(message.author.id))
+                await message.channel.send(msg)
 
-        level = sheet["B"+str(i)].value
-
-        decrease_increase = ""
-        if exp > 0:   #강화를 통해 증가했는지 감소했는지 정하는 부분
-            decrease_increase = "증가량 : +"
-        elif exp < 0:
-            decrease_increase = "감소량 : "
-
-        if success_failure_ox == True and boom_ox == True:
-            msg = "<@{}>님 강화 성공! 강화 레벨은 {} 입니다.(기존 레벨 : {}, {}{})".format(message.author.id, level, old_level,decrease_increase,exp)
-        elif success_failure_ox == False and boom_ox == True:
-            msg = "<@{}>님 강화 실패! 강화 레벨은 {} 입니다.".format(message.author.id, level)
-        elif boom_ox == False:
-            msg = "<@{}>님 강화 실패! 아이쿠 터졌습니다. 강화 레벨은 {} 입니다.".format(str(message.author.id), level)
-
-        await message.channel.send(msg)
         file.save("레벨.xlsx")
+
+    if message.content.startswith("!순위"):
+        file = openpyxl.load_workbook("레벨.xlsx")
+        sheet = file.active
+
+        i=1
+        name_ranking_list=[]
+        point_ranking_list=[]
+        while True:
+            if sheet["A"+str(i)].value == None:
+                break
+            name_ranking_list.append(sheet["A"+str(i)].value)
+            point_ranking_list.append(sheet["B"+str(i)].value)
+            i+=1
+        list_length = sys.getsizeof(name_ranking_list)
+        
+                    
+        for i in range(list_length):
+            for j in range(list_length):
+                if (point_ranking_list[j] < point_ranking_list[j+1]):
+                    temp = point_ranking_list[j]
+                    point_ranking_list[j] = point_ranking_list[j+1]
+                    point_ranking_list[j+1] = temp
+                    temp = name_ranking_list[j]
+                    name_ranking_list[j] = name_ranking_list[j+1]
+                    name_ranking_list[j+1] = temp
+
+
+        for i in list_length:
+            print(point_ranking_list[i])
+
+                
+
+
+            
 
     if message.content.startswith("!행운의 숫자"):
         random_num1 = str(random.randrange(1,99))
