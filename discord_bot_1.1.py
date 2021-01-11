@@ -5,8 +5,8 @@ import openpyxl
 from openpyxl import load_workbook
 import time
 
-#TOKEN = os.environ['BOT_TOKEN']
-TOKEN = 'Nzk3NzUzODAwOTE1OTQzNDU0.X_rEHw.9tpyrpyHdaO8tbxVNjaPjGeWOUg'
+TOKEN = os.environ['BOT_TOKEN']
+
 client = discord.Client()
 
 @client.event
