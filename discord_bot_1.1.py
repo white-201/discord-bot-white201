@@ -1,21 +1,26 @@
 import discord
-import random
 import os
+import random
 
-TOKEN = os.environ['BOT_TOKEN']
+#TOKEN = os.environ['BOT_TOKEN']
+TOKEN = "Nzk3NzUzODAwOTE1OTQzNDU0.X_rEHw.E8MLuc02eMU4wCxN2Gfi1oi9jSU"
 client = discord.Client()
-@client.event
 
+@client.event
 async def on_message(message):
     if message.author.bot:
         return None
 
-    random_num1 = 0
-
+    random_num1 = ''
+   
     if message.content.startswith("!행운의 숫자"):
-        random_num1 = random.rnadrange(1,100)
+        random_num1 = str(random.randrange(1,99))
         await message.channel.send("행운의 숫자는 "+random_num1+" 입니다")
         print("행운의 숫자는 "+random_num1+" 입니다")
+
+    if message.content.startswith("@white201#7964"):
+        await message.channel.send("뭐이 시끼야!")
+        print("뭐이 시끼야!")
         
     if message.content.startswith("바보"):
         await message.channel.send("응 바보 니가 더 바보")
