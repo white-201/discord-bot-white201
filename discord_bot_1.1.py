@@ -2,8 +2,7 @@ import discord
 import os
 import random
 
-#TOKEN = os.environ['BOT_TOKEN']
-TOKEN = "Nzk3NzUzODAwOTE1OTQzNDU0.X_rEHw.E8MLuc02eMU4wCxN2Gfi1oi9jSU"
+TOKEN = os.environ['BOT_TOKEN']
 client = discord.Client()
 
 @client.event
@@ -13,6 +12,21 @@ async def on_message(message):
 
     random_num1 = ''
    
+    reinforce_list =  [["관리자", 100]]
+
+    if message.content == "!강화":
+        channel = message.channel
+        user_name = message.author.id
+        level_Change = rnadom.randrange(-10,10)
+        if user_name in reinforce_list:
+            reinforce_list[index(@message.author.id)]
+            
+        msg = "<@{}>".format(message.author.id)
+        await channel.send(msg)
+        
+
+
+
     if message.content.startswith("!행운의 숫자"):
         random_num1 = str(random.randrange(1,99))
         await message.channel.send("행운의 숫자는 "+random_num1+" 입니다")
