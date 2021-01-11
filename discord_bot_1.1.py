@@ -6,12 +6,12 @@ TOKEN = os.environ['BOT_TOKEN']
 client = discord.Client()
 @client.event
 
-random_num1 = 0
-
 async def on_message(message):
     if message.author.bot:
         return None
-    
+
+    random_num1 = 0
+
     if message.content.startswith("!행운의 숫자"):
         random_num1 = random.rnadrange(1,100)
         await message.channel.send("행운의 숫자는 "+random_num1+" 입니다")
