@@ -7,7 +7,7 @@ import time
 import sys
 
 #TOKEN = os.environ['BOT_TOKEN']
-TOKEN = 'Nzk3NzUzODAwOTE1OTQzNDU0.X_rEHw.CbkOxRxcvNJY6-xHVZy9h4frlv4'
+TOKEN = 'Nzk3NzUzODAwOTE1OTQzNDU0.X_rEHw.RWOFCGcMWCjuYwZUzeTJbX9qLxw'
 client = discord.Client()
 
 @client.event
@@ -75,36 +75,32 @@ async def on_message(message):  #봇이 쓰는 명령에는 반응 안되게 하
         file = openpyxl.load_workbook("레벨.xlsx")
         sheet = file.active
 
-        i=1
+        
+
         name_ranking_list=[]
         point_ranking_list=[]
+        i=1
         while True:
             if sheet["A"+str(i)].value == None:
                 break
             name_ranking_list.append(sheet["A"+str(i)].value)
             point_ranking_list.append(sheet["B"+str(i)].value)
             i+=1
-        list_length = sys.getsizeof(name_ranking_list)
-        
-                    
-        for i in range(list_length):
-            for j in range(list_length):
-                if (point_ranking_list[j] < point_ranking_list[j+1]):
-                    temp = point_ranking_list[j]
-                    point_ranking_list[j] = point_ranking_list[j+1]
-                    point_ranking_list[j+1] = temp
-                    temp = name_ranking_list[j]
-                    name_ranking_list[j] = name_ranking_list[j+1]
-                    name_ranking_list[j+1] = temp
 
+        for i in range(len(point_ranking_list) - 1):
+            man_idx = i
+            for j in range(i + 1, len(point_ranking_list)):
+                if point_ranking_list[j] > point_ranking_list[man_idx]:
+                    man_idx = j
+            point_ranking_list[i], point_ranking_list[man_idx] = point_ranking_list[man_idx], point_ranking_list[i]
+            name_ranking_list[i], name_ranking_list[man_idx] = name_ranking_list[man_idx], name_ranking_list[i]
 
-        for i in list_length:
-            print(point_ranking_list[i])
-
-                
-
-
+        embed = discord.Embed(title="순위표",color=0x62c1cc)
+        for i in range(0,10):
+            temp_player = "<@{}>".format(name_ranking_list[i])
+            embed.add_field(name=str(i+1)+"위", value=temp_player+" - "+str(point_ranking_list[i])+"점", inline=False)
             
+        await message.channel.send(embed=embed)
 
     if message.content.startswith("!행운의 숫자"):
         random_num1 = str(random.randrange(1,99))
